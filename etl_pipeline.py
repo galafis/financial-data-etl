@@ -5,8 +5,8 @@ Author: Gabriel Demetrios Lafis
 
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from datetime import datetime
+from typing import Dict, List, Optional
 import json
 import logging
 
@@ -19,7 +19,7 @@ class FinancialDataETL:
     Extract from multiple sources, Transform with validation, Load to database.
     """
     
-    def __init__(self, output_format: str = 'parquet'):
+    def __init__(self, output_format: str = 'csv'):
         self.output_format = output_format
         self.data_quality_report = []
         
@@ -153,8 +153,9 @@ class FinancialDataETL:
             delta = df['close'].diff()
             gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
             loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-            rs = gain / loss
+            rs = gain / loss.replace(0, np.nan)
             df['rsi'] = 100 - (100 / (1 + rs))
+            df['rsi'] = df['rsi'].fillna(100)  # RSI=100 when loss=0
         
         logger.info(f"Added indicators. Shape: {df.shape}")
         return df
@@ -230,11 +231,11 @@ class FinancialDataETL:
         # Transform
         df = self.validate_data(df)
         
-        if add_indicators:
-            df = self.transform_add_indicators(df)
-        
         if resample_freq:
             df = self.transform_resample(df, resample_freq)
+        
+        if add_indicators:
+            df = self.transform_add_indicators(df)
         
         # Load
         self.load_to_file(df, output_path)
