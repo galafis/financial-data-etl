@@ -79,6 +79,19 @@ df = etl.run_pipeline(
 print(etl.get_quality_report())
 ```
 
+### Arquitetura
+
+```mermaid
+graph TD
+    A["CSV / JSON / API Simulada"] --> B["etl_pipeline.py<br/>FinancialDataETL"]
+    B --> C["Extracao<br/>Parse ou Gera OHLCV"]
+    C --> D["Validacao<br/>Duplicatas, OHLC, Negativos"]
+    D --> E["Relatorio de Qualidade"]
+    D --> F["Transformacao<br/>SMA, Retornos, Volatilidade, RSI"]
+    F --> G["Resample Opcional"]
+    G --> H["Carga<br/>CSV / JSON / Parquet"]
+```
+
 ### Estrutura do Projeto
 
 ```
@@ -175,6 +188,19 @@ df = etl.run_pipeline(
 
 # View quality report
 print(etl.get_quality_report())
+```
+
+### Architecture
+
+```mermaid
+graph TD
+    A["CSV / JSON / Simulated API"] --> B["etl_pipeline.py<br/>FinancialDataETL"]
+    B --> C["Extract<br/>Parse or Generate OHLCV"]
+    C --> D["Validate<br/>Duplicates, OHLC, Negatives"]
+    D --> E["Quality Report"]
+    D --> F["Transform<br/>SMA, Returns, Volatility, RSI"]
+    F --> G["Optional Resample"]
+    G --> H["Load<br/>CSV / JSON / Parquet"]
 ```
 
 ### Project Structure
